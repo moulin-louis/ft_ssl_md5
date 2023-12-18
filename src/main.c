@@ -13,5 +13,6 @@ int main(int ac, char **av) {
     display_usage();
     return 1;
   }
+
   return 0;
 }
