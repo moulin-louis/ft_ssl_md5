@@ -7,4 +7,5 @@ add_compile_options(-Wall -Wextra -Werror)
 include_directories(./inc)
 add_executable(ft_ssl ./src/main.c
         inc/ft_ssl.h
-        src/main.c)
+        src/main.c
+        src/parsing.c)
