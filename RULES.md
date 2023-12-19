@@ -1,7 +1,5 @@
 - if no args after command:
     - use stdin -> (stdin) = hash
-- if -p after command:
-    - use stdin -> (content stdin) = hash
 - -q cancel the -r
 - if something after command:
     - try open it as a file -> MD5(file name) = hash
@@ -13,4 +11,4 @@
     - try open it as a file -> MD5(file name) = hash
 - flag are applied before a -p or a file and reset after
 - once we found a file, everything after is a file
-- -r doesnt apply to -p
+- -r doesn't apply to -p

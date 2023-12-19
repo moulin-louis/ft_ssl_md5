@@ -2,6 +2,7 @@
 // Created by loumouli on 12/18/23.
 //
 
+#pragma once
 #ifndef FT_SSL_H
 #define FT_SSL_H
 
@@ -11,49 +12,63 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <math.h>
 
 #define NBR_FLAGS 4
 #define NBR_COMMANDS 2
-
 typedef enum {
-  STDIN,
-  // -p
-  QUIET,
-  // -q
-  REVERSE,
-  // -r
-  STRING,
-  // -s
+  INVALID = 0,
+  // invalid flag , value of 0, enum == 0
+  STDIN = 1 << 1,
+  // -p (read from stdin), enum == 1
+  QUIET = 1 << 2,
+  // -q (quiet mode -> only print the hash), enum == 2
+  REVERSE = 1 << 3,
+  // -r (reverse the format of the output), enum == 4
+  STRING = 1 << 4,
+  // -s (print the hash of the given string), enum == 8
 } t_flags;
 
 typedef struct s_ssl {
-  char* command; // CONVERT THIS TO POINTER FUNCTION
-  t_flags flag; // ARRAY OF FLAG TO APPLY TO THE COMMAND
-  char* input; // STRING TO HASH
-  char* args; // ARG/NAME TO HASH (FILE OR STRING)
+  void (*fn)(struct s_ssl*); // POINTER TO FUNCTION USED TO HASH THE INPUT
+  uint32_t flags; // FLAGS TO APPLY TO THE COMMAND/OUTPUT
+  uint8_t* input; // STRING TO HASH
+  uint8_t* args; // ARG/NAME TO HASH (FILE OR STRING)
+  uint8_t  hash[128]; // HASHED RESULT
   struct s_ssl* next; // NEXT COMMAND
 } t_ssl;
 
 typedef struct {
-  char* command;              // COMMAND NAME
-  void (*fn)(const t_ssl*);   // POINTER TO FUNCTION ASSOCIATED TO THE COMMAND
-} t_cmd;
+  char* command; // COMMAND NAME
+  void (*fn)(t_ssl*); // POINTER TO FUNCTION ASSOCIATED TO THE COMMAND
+} t_cmd_fn;
 
-t_ssl* parsing_args(int ac, char** av);
+typedef struct {
+  char* flag_str;
+  t_flags flag;
+} t_flag_str;
 
-int execute_ssl(const t_ssl* ssl);
+t_ssl* parsing_args(char** av);
 
-void cleanup_ssl(t_ssl* ssl);
+void execute_ssl(t_ssl* ssl);
 
-void hash_md5(const t_ssl* ssl);
+void hash_md5(t_ssl* ssl);
 
-void hash_sha256(const t_ssl* ssl);
+void hash_sha256(t_ssl* ssl);
 
-char* flags[4] = {"-s", "-p", "-q", "-r"};
-char* commands[2] = {"md5", "sha256"};
-//make array of string and pointer fn
-t_cmd cmd[NBR_COMMANDS] = {
-  {"md5", hash_md5},
-  {"sha256", hash_sha256}};
+size_t lst_len(const t_ssl* lst);
+
+int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args);
+
+t_ssl* lst_get_last(t_ssl* lst);
+
+uint8_t* read_all_file(int fd);
+
+int32_t process_file(t_ssl* node);
+
+extern t_cmd_fn cmd_fn[NBR_COMMANDS];
+extern t_flag_str flags_str[NBR_FLAGS];
 
 #endif //FT_SSL_H
