@@ -4,6 +4,10 @@
 
 #include "ft_ssl.h"
 
+void print_sha256(t_ssl* ssl) {
+  (void)ssl;
+}
+
 void hash_sha256(t_ssl* ssl) {
   (void)ssl;
 }

@@ -4,16 +4,21 @@
 
 #include "ft_ssl.h"
 
-t_flag_str flags_str[NBR_FLAGS] = {
+t_flag_str FlagsTables[NBR_FLAGS] = {
   {"-p", STDIN},
   {"-q", QUIET},
   {"-r", REVERSE},
   {"-s", STRING},
 };
 
-t_cmd_fn cmd_fn[NBR_COMMANDS] = {
+t_cmd_fn CmdHashTables[NBR_COMMANDS] = {
   {"md5", hash_md5},
   {"sha256", hash_sha256}
+};
+
+t_cmd_fn CmdPrintTables[NBR_COMMANDS] = {
+  {"md5", print_md5},
+  {"sha256", print_sha256}
 };
 
 static void display_usage(void) {
@@ -40,6 +45,7 @@ int main(int ac, char** av) {
   if (ssl == NULL) {
     return 1;
   }
+  fflush(NULL);
   execute_ssl(ssl);
   cleanup_ssl(ssl);
   return 0;

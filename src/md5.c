@@ -10,13 +10,6 @@
 #define H(X, Y, Z) (X ^ Y ^ Z)
 #define I(X, Y, Z) (Y ^ (X | ~Z))
 
-//rorate left 32 bits int
-#define rotl32(V, R) ((V << R) | (V >> (32 - R))
-//rorate left 16 bits int
-#define rotl16(V, R) ((V << R) | (V >> (16 - R))
-//rorate left 8 bits int
-#define rotl8(V, R) ((V << R) | (V >> (8 - R))
-
 #define A0 0x67452301
 #define B0 0xefcdab89
 #define C0 0x98badcfe
@@ -24,59 +17,84 @@
 
 #define MD5_RESULT_SIZE 16
 
+uint32_t s[64] = {
+  7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9,14, 20, 5, 9, 14, 20, 4,
+  11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10,15, 21, 6, 10, 15, 21
+};
+
+uint32_t K[64] = {
+  0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,0x698098d8, 0x8b44f7af,
+  0xffff5bb1, 0x895cd7be, 0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821, 0xf61e2562,0xc040b340,0x265e5a51, 0xe9b6c7aa,
+  0xd62f105d, 0x02441453, 0xd8a1e681, 0xe7d3fbc8, 0x21e1cde6, 0xc33707d6, 0xf4d50d87,0x455a14ed,0xa9e3e905, 0xfcefa3f8,
+  0x676f02d9, 0x8d2a4c8a, 0xfffa3942, 0x8771f681, 0x6d9d6122, 0xfde5380c, 0xa4beea44,0x4bdecfa9,0xf6bb4b60, 0xbebfbc70,
+  0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05, 0xd9d4d039, 0xe6db99e5, 0x1fa27cf8,0xc4ac5665,0xf4292244, 0x432aff97,
+  0xab9423a7, 0xfc93a039, 0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1, 0x6fa87e4f,0xfe2ce6e0,0xa3014314, 0x4e0811a1,
+  0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
+};
+
+uint8_t PADDING[64] = {
+  0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00,0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00,0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00
+};
+
 typedef struct {
   uint64_t size; // size of the input in bytes
   uint32_t buffer[4]; // accumulation of hash
   uint8_t input[64]; //input to be used for next step
   uint8_t digest[16]; // result hash
-  uint32_t s[64];  //s used for md5 algo
-  uint32_t K[64]; //K used for md5 algo
 } MD5_Context;
+
+uint32_t rotateLeft(const uint32_t x, const uint32_t n) {
+  return x << n | x >> (32 - n);
+}
+
+void print_md5(t_ssl* ssl) {
+  for (uint32_t i = 0; i < MD5_RESULT_SIZE; ++i)
+    printf("%02x", ssl->hash[i]);
+}
 
 void ft_md5_init(MD5_Context* ctx) {
   ctx->size = 0;
-  ctx->buffer[0] = A0;
-  ctx->buffer[1] = B0;
-  ctx->buffer[2] = C0;
-  ctx->buffer[3] = D0;
-  for (uint32_t i = 0; i < 64; i++) {
-    ctx->K[i] = floor(pow(2, 32) * fabs(sin(i + 1)));
-  }
-  ctx->s = {0, 1, 2};
+  ctx->buffer[0] = (uint32_t)A0;
+  ctx->buffer[1] = (uint32_t)B0;
+  ctx->buffer[2] = (uint32_t)C0;
+  ctx->buffer[3] = (uint32_t)D0;
 }
 
-void ft_md5_step(MD5_Context* ctx) {
+void ft_md5_step(MD5_Context* ctx, const uint32_t* input) {
   uint32_t AA = ctx->buffer[0];
   uint32_t BB = ctx->buffer[1];
   uint32_t CC = ctx->buffer[2];
   uint32_t DD = ctx->buffer[3];
 
-  uint32_t E;
-  uint32_t j;
-
-  for (int32_t i = 0; i < 64; i++) {
+  uint32_t F;
+  uint32_t g;
+  for (uint32_t i = 0; i < 64; ++i) {
     switch (i / 16) {
-      case 0: //F
-        E = F(BB, CC, DD);
-        j = i;
+      case 0: // if 0 <= i <= 15
+        F = F(BB, CC, DD);
+        g = i;
         break;
-      case 1: //G
-        E = G(BB, CC, DD);
-        j = (5 * i + 1) % 16;
+      case 1: // if 16 <= i <= 31
+        F = G(BB, CC, DD);
+        g = ((i * 5) + 1) % 16;
         break;
-      case 2: //H
-        E = H(BB, CC, DD);
-        j = (3 * i + 5) % 16;
+      case 2: // if 32 <= i <= 47
+        F = H(BB, CC, DD);
+        g = ((i * 3) + 5) % 16;
         break;
-      default: //I
-        E = I(CC, BB, DD);
-        j = (7 * i) % 16;
+      default: // if 48 <= i <= 63
+        F = I(BB, CC, DD);
+        g = (i * 7) % 16;
+        break;
     }
-    uint32_t tmp = DD;
+    F = F + AA + K[i] + input[g];
+    AA = DD;
     DD = CC;
     CC = BB;
-    BB = BB + rotl32(AA + E + ctx->K[i] + ctx->input[j], ctx->s[i]);
-    AA = tmp;
+    BB = BB + rotateLeft(F, s[i]);
   }
   ctx->buffer[0] += AA;
   ctx->buffer[1] += BB;
@@ -84,46 +102,74 @@ void ft_md5_step(MD5_Context* ctx) {
   ctx->buffer[3] += DD;
 }
 
-void ft_md5_update(MD5_Context* ctx, uint8_t* data, uint64_t len) {
+void ft_md5_update(MD5_Context* ctx, const uint8_t* data, const uint64_t len) {
+  uint32_t input[16];
+  unsigned int offset = ctx->size % 64;
+  ctx->size += len;
 
+  for (unsigned int i = 0; i < len; ++i) {
+    ctx->input[offset++] = (uint8_t)*(data + i);
+    if (offset % 64 != 0)
+      continue;
+    //convert to little endian
+    for (unsigned int j = 0; j < 16; ++j)
+      input[j] = (uint32_t)ctx->input[j * 4 + 3] << 24 | (uint32_t)ctx->input[j * 4 + 2] << 16 | (uint32_t)ctx->input[
+                   j * 4 + 1] << 8 | (uint32_t)ctx->input[j * 4];
+    ft_md5_step(ctx, input);
+    offset = 0;
+  }
 }
 
 void ft_md5_final(MD5_Context* ctx) {
+  uint32_t input[16];
+  const uint32_t offset = ctx->size % 64;
+  const uint32_t pad_len = offset < 56 ? 56 - offset : (56 + 64) - offset;
 
+  ft_md5_update(ctx, PADDING, pad_len);
+  ctx->size -= pad_len;
+  for (uint32_t j = 0; j < 14; ++j)
+    input[j] = (uint32_t)ctx->input[j * 4 + 3] << 24 | (uint32_t)ctx->input[j * 4 + 2] << 16 | (uint32_t)ctx->input[
+                 j * 4 + 1] << 8 | (uint32_t)ctx->input[j * 4];
+  input[14] = (uint32_t)(ctx->size * 8);
+  input[15] = (uint32_t)(ctx->size * 8 >> 32);
+  ft_md5_step(ctx, input);
+  for (uint32_t i = 0; i < 4; ++i) {
+    ctx->digest[i * 4] = (uint8_t)(ctx->buffer[i] & 0x000000FF);
+    ctx->digest[i * 4 + 1] = (uint8_t)((ctx->buffer[i] & 0x0000FF00) >> 8);
+    ctx->digest[i * 4 + 2] = (uint8_t)((ctx->buffer[i] & 0x00FF0000) >> 16);
+    ctx->digest[i * 4 + 3] = (uint8_t)((ctx->buffer[i] & 0xFF000000) >> 24);
+  }
 }
 
 void hash_md5(t_ssl* ssl) {
   MD5_Context ctx;
+
+  memset(&ctx, 0, sizeof(MD5_Context));
   ft_md5_init(&ctx);
-  ft_md5_update(&ctx, ssl->input, strlen((char*)ssl->input));
+  ft_md5_update(&ctx, ssl->input, ssl->len_input);
   ft_md5_final(&ctx);
   memcpy(ssl->hash, ctx.buffer, MD5_RESULT_SIZE);
-  printf("MY MD5 RESULT: ");
-  for (uint32_t i = 0; i < MD5_RESULT_SIZE; i++) {
-    printf("%02x", ssl->hash[i]);
-  }
-  printf("\n");
+  //print hash md5 format
 
+  // uint8_t result[MD5_RESULT_SIZE] = {};
+  // memset(result, 0, MD5_RESULT_SIZE);
 
-  uint8_t result[MD5_RESULT_SIZE] = {};
-  uint32_t md_len;
-  OpenSSL_add_all_digests();
-  const EVP_MD* md = EVP_get_digestbyname("md5");
-  EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
-  EVP_DigestInit_ex(mdctx, md, NULL);
-  EVP_DigestUpdate(mdctx, ssl->input, strlen((char*)ssl->input));
-  EVP_DigestFinal_ex(mdctx, result, &md_len);
-  EVP_MD_CTX_free(mdctx);
-  EVP_cleanup();
+  // uint32_t md_len;
+  // OpenSSL_add_all_digests();
+  // const EVP_MD* md = EVP_get_digestbyname("md5");
+  // if (md == NULL) {
+    // fprintf(stderr, "MD5 digest not found\n");
+    // exit(1);
+  // }
+  // EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+  // EVP_DigestInit_ex(mdctx, md, NULL);
+  // EVP_DigestUpdate(mdctx, ssl->input, strlen((char *)ssl->input));
+  // EVP_DigestFinal_ex(mdctx, result, &md_len);
+  // EVP_MD_CTX_free(mdctx);
+  // EVP_cleanup();
 
-  printf("OPENSSL MD5 RESULT: ");
-  for (uint32_t i = 0; i < MD5_RESULT_SIZE; i++) {
-    printf("%02x", result[i]);
-  }
-  printf("\n");
-
-  if (memcmp(ssl->hash, result, MD5_RESULT_SIZE) == 0)
-    printf("SAME RESULT\n");
-  else
-    printf("DIFFERENT RESULT\n");
+  // if (memcmp(ssl->hash, result, MD5_RESULT_SIZE) == 0)
+    // printf("RESULT CONFIRMED\n");
+  // else
+    // printf("DIFFERENT RESULT\n");
 }

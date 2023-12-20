@@ -4,76 +4,61 @@
 
 #include "ft_ssl.h"
 
-//FUNCTION THAT RETURN A PTR FUNCTION OF THIS TYPE -> void (const t_ssl*) FKIN WEIRD SYNTAX
-static void (* search_command(const char* str))(t_ssl*) {
-  for (uint32_t i = 0; i < NBR_COMMANDS; i++) {
-    if (strcmp(cmd_fn[i].command, str) == 0) {
-      printf("USING %s\n", cmd_fn[i].command);
-      return cmd_fn[i].fn;
-    }
-  }
-  printf("UNKNOW COMMAND\n");
-  return NULL;
-}
-
-static t_flags str_to_flags(const char* str) {
-  for (uint32_t idx = 0; idx < NBR_FLAGS; idx++) {
-    if (strcmp(flags_str[idx].flag_str, str) == 0)
-      return flags_str[idx].flag;
-  }
-  return INVALID;
-}
-
 static void parsing(t_ssl** ssl, char** av, uint32_t option) {
-  if (*av == NULL)
+  if (*av == NULL) {
+    if (lst_len(*ssl))
+        return;
+    char *input = (char*)read_all_file(0);
+    if (input == NULL)
+      return;
+    lst_add_back(ssl, option | STDIN, input, "stdin");
     return;
+  }
   const t_flags flag = str_to_flags(*av);
   switch (flag) {
     case QUIET:
       option |= QUIET;
       parsing(ssl, ++av, option);
-      break;
+      return;
     case REVERSE:
       option |= REVERSE;
       parsing(ssl, ++av, option);
-      break;
-    case STDIN:
-      if (option & QUIET)
-        lst_add_back(ssl, (option & ~QUIET) | STDIN, NULL, NULL);
-      else
-        lst_add_back(ssl, option | STDIN, NULL, NULL);
-      parsing(&lst_get_last(*ssl)->next, ++av, option);
-      break;
+      return;
+    case STDIN: {
+      char *input = (char*)read_all_file(0);
+      if (input == NULL)
+        return;
+      lst_add_back(ssl, option | STDIN, input, input);
+      parsing(ssl, ++av, option);
+      return;
+    }
     case STRING:
       lst_add_back(ssl, option | STRING, *(av + 1), *(av + 1));
       av += 2;
-      parsing(&lst_get_last(*ssl)->next, av, option);
-      break;
+      parsing(ssl, av, option);
+      return;
     case INVALID:
       for (uint32_t idx = 0; av[idx]; idx++)
         lst_add_back(ssl, option, NULL, av[idx]);
-      break;
+      return;
   }
 }
 
 t_ssl* parsing_args(char** av) {
   t_ssl* result = NULL;
 
-  void (*ptr)(t_ssl*) = search_command(av[1]);
-  if (ptr == NULL)
+  void (*hash_fn)(t_ssl*) = str_to_hash_fn(av[1]);
+  void (*print_fn)(t_ssl*) = str_to_print_fn(av[1]);
+  if (hash_fn == NULL || print_fn == NULL)
     return NULL;
   parsing(&result, &av[2], 0);
-  if (result == NULL)
+  if (result == NULL) {
+    printf("parsing failed\n");
     return result;
-  printf("Len lst: %zu\n\n", lst_len(result));
-  size_t i = 0;
-  //apply ptr function and print info
-  for (t_ssl* tmp = result; tmp; tmp = tmp->next) {
-    tmp->fn = ptr;
-    printf("NODE %zu\n", i++);
-    printf("FLAGS: %d\n", tmp->flags);
-    printf("ARGS: %s\n", (char*)tmp->args);
-    printf("\n");
+  }
+  for (t_ssl* node = result; node; node = node->next) {
+    node->hash_fn = hash_fn;
+    node->print_fn = print_fn;
   }
   return result;
 }

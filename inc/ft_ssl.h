@@ -15,9 +15,11 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <math.h>
+#include <ctype.h>
 
 #define NBR_FLAGS 4
 #define NBR_COMMANDS 2
+
 typedef enum {
   INVALID = 0,
   // invalid flag , value of 0, enum == 0
@@ -32,12 +34,15 @@ typedef enum {
 } t_flags;
 
 typedef struct s_ssl {
-  void (*fn)(struct s_ssl*); // POINTER TO FUNCTION USED TO HASH THE INPUT
+  void (*hash_fn)(struct s_ssl*); // POINTER TO FUNCTION USED TO HASH THE INPUT
+  void (*print_fn)(struct s_ssl*); // POINTER TO FUNCTION USED TO PRINT THE RESULT
   uint32_t flags; // FLAGS TO APPLY TO THE COMMAND/OUTPUT
   uint8_t* input; // STRING TO HASH
+  uint64_t len_input; //LEN OF INPUT
   uint8_t* args; // ARG/NAME TO HASH (FILE OR STRING)
-  uint8_t  hash[128]; // HASHED RESULT
+  uint8_t hash[128]; // HASHED RESULT
   struct s_ssl* next; // NEXT COMMAND
+  struct s_ssl* prev; // PREVIOUS COMMAND
 } t_ssl;
 
 typedef struct {
@@ -56,7 +61,11 @@ void execute_ssl(t_ssl* ssl);
 
 void hash_md5(t_ssl* ssl);
 
+void print_md5(t_ssl* ssl);
+
 void hash_sha256(t_ssl* ssl);
+
+void print_sha256(t_ssl* ssl);
 
 size_t lst_len(const t_ssl* lst);
 
@@ -68,7 +77,22 @@ uint8_t* read_all_file(int fd);
 
 int32_t process_file(t_ssl* node);
 
-extern t_cmd_fn cmd_fn[NBR_COMMANDS];
-extern t_flag_str flags_str[NBR_FLAGS];
+t_flags str_to_flags(const char* str);
+
+char* flag_to_str(t_flags flag);
+
+void (*str_to_hash_fn(const char* str))(t_ssl*);
+
+char* hash_fn_to_str(void (*fn_hash)(t_ssl*));
+
+void (*str_to_print_fn(const char* str))(t_ssl*);
+
+char* print_fn_to_str(void (*fn_print)(t_ssl*));
+
+char* ft_toupper(char *str);
+
+extern t_cmd_fn CmdHashTables[NBR_COMMANDS];
+extern t_cmd_fn CmdPrintTables[NBR_COMMANDS];
+extern t_flag_str FlagsTables[NBR_FLAGS];
 
 #endif //FT_SSL_H
