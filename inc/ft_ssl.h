@@ -13,9 +13,6 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include <errno.h>
-#include <stdbool.h>
-#include <math.h>
-#include <ctype.h>
 
 #define NBR_FLAGS 4
 #define NBR_COMMANDS 2
@@ -88,8 +85,6 @@ char* hash_fn_to_str(void (*fn_hash)(t_ssl*));
 void (*str_to_print_fn(const char* str))(t_ssl*);
 
 char* print_fn_to_str(void (*fn_print)(t_ssl*));
-
-char* ft_toupper(char *str);
 
 extern t_cmd_fn CmdHashTables[NBR_COMMANDS];
 extern t_cmd_fn CmdPrintTables[NBR_COMMANDS];

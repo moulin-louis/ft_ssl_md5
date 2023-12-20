@@ -130,9 +130,3 @@ char* print_fn_to_str(void (*fn_print)(t_ssl*)) {
   }
   return NULL;
 }
-
-char* ft_toupper(char* str) {
-  for (uint32_t i = 0; str[i]; i++)
-    str[i] = toupper(str[i]);
-  return str;
-}

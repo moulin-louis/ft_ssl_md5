@@ -5,7 +5,6 @@ project(ft_ssl C)
 
 add_compile_options(-g -Wall -Wextra -Werror)
 include_directories(./inc)
-link_libraries(m ssl crypto)
 add_executable(ft_ssl ./src/main.c
         inc/ft_ssl.h
         src/main.c
