@@ -19,28 +19,27 @@ static void parsing(t_ssl** ssl, char** av, uint32_t option) {
     case QUIET:
       option |= QUIET;
       parsing(ssl, ++av, option);
-      return;
+      break;
     case REVERSE:
       option |= REVERSE;
       parsing(ssl, ++av, option);
-      return;
+      break;
     case STDIN: {
       char *input = (char*)read_all_file(0);
       if (input == NULL)
-        return;
+        break;
       lst_add_back(ssl, option | STDIN, input, input);
       parsing(ssl, ++av, option);
-      return;
+      break;
     }
     case STRING:
       lst_add_back(ssl, option | STRING, *(av + 1), *(av + 1));
       av += 2;
       parsing(ssl, av, option);
-      return;
+      break;
     case INVALID:
       for (uint32_t idx = 0; av[idx]; idx++)
         lst_add_back(ssl, option, NULL, av[idx]);
-      return;
   }
 }
 

@@ -55,9 +55,8 @@ int32_t process_file(t_ssl* node) {
 }
 
 uint8_t* read_all_file(const int fd) {
-  char* result = strdup("");
-  if (result == NULL)
-    return NULL;
+  char* result = NULL;
+  uint64_t size = 0;
   while (1) {
     char buf[2096];
     const ssize_t ret = read(fd, buf, 2095);
@@ -68,13 +67,14 @@ uint8_t* read_all_file(const int fd) {
     if (ret == 0)
       break;
     buf[ret] = '\0';
-    char* tmp = realloc(result, strlen(result) + strlen(buf) + 1);
+    char* tmp = realloc(result, (result ? strlen(result) : 0) + strlen(buf) + 1);
     if (tmp == NULL) {
       printf("ERROR ALLOCATING MEMORY\n");
       return NULL;
     }
     result = tmp;
-    memcpy(result + strlen(result), buf, strlen(buf) + 1);
+    memcpy(result + size, buf, strlen(buf) + 1);
+    size += strlen(buf);
   }
   return (uint8_t *)result;
 }

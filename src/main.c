@@ -28,7 +28,7 @@ static void display_usage(void) {
 static void cleanup_ssl(t_ssl* ssl) {
   while (ssl) {
     t_ssl* tmp = ssl->next;
-    if (!(ssl->flags & STDIN) && !(ssl->flags & STRING)) {
+    if (!(ssl->flags & STRING)) {
       free(ssl->input);
     }
     free(ssl);
@@ -45,7 +45,6 @@ int main(int ac, char** av) {
   if (ssl == NULL) {
     return 1;
   }
-  fflush(NULL);
   execute_ssl(ssl);
   cleanup_ssl(ssl);
   return 0;
