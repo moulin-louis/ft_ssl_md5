@@ -6,21 +6,18 @@
 
 static void print_result(t_ssl* ssl) {
   if (ssl->flags & QUIET) {
-    ssl->print_fn(ssl);
+    ssl->print_hash(ssl);
   }
   else if (ssl->flags & REVERSE) {
-    ssl->print_fn(ssl);
+    ssl->print_hash(ssl);
     printf(" %s", ssl->args);
   }
-  else if (!(ssl->flags & STRING) && !(ssl->flags & STDIN)) {
-    printf("%s(%s)= ", hash_fn_to_str(ssl->hash_fn), ssl->args);
-    ssl->print_fn(ssl);
-  } else {
-    char* nl = strchr((char*)ssl->args, '\n');
-    nl ? *nl = '\0' : 0;
-    printf("%s(\"%s\")= ", hash_fn_to_str(ssl->hash_fn), ssl->args);
-    ssl->print_fn(ssl);
-  }
+  else if (ssl->flags & STDIN)
+    print_stdin_node(ssl);
+  else if (ssl->flags & STRING)
+    print_string_node(ssl);
+  else
+    print_file_node(ssl);
   printf("\n");
 }
 

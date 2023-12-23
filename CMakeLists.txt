@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-set(CMAKE_C_COMPILER  /usr/bin/clang)
+set(CMAKE_C_COMPILER  /usr/bin/gcc)
 project(ft_ssl C)
 
 add_compile_options(-g -Wall -Wextra -Werror)
@@ -12,4 +12,5 @@ add_executable(ft_ssl ./src/main.c
         src/md5.c
         src/sha256.c
         src/utils.c
-        src/execution.c)
+        src/execution.c
+        src/print_output.c)

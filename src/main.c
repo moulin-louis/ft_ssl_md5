@@ -22,7 +22,7 @@ t_cmd_fn CmdPrintTables[NBR_COMMANDS] = {
 };
 
 static void display_usage(void) {
-  fprintf(stderr, "usage: ft_ssl command [flags] [file/string]\n");
+  printf("usage: ft_ssl command [flags] [file/string]\n");
 }
 
 static void cleanup_ssl(t_ssl* ssl) {
@@ -42,9 +42,8 @@ int main(int ac, char** av) {
     return 1;
   }
   t_ssl* ssl = parsing_args(av);
-  if (ssl == NULL) {
+  if (ssl == NULL)
     return 1;
-  }
   execute_ssl(ssl);
   cleanup_ssl(ssl);
   return 0;

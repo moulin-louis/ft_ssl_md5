@@ -41,12 +41,12 @@ int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args) {
 int32_t process_file(t_ssl* node) {
   const int fd = open((char *)node->args, O_RDONLY);
   if (fd == -1) {
-    fprintf(stderr, "ft_ssl: %s: %s\n", node->args, strerror(errno));
+    printf("ft_ssl: %s: %s: %s\n", hash_fn_to_str(node->hash_fn),node->args, strerror(errno));
     return 1;
   }
   uint8_t* input = read_all_file(fd);
   if (input == NULL) {
-    fprintf(stderr, "ft_ssl: %s: %s\n", node->args, strerror(errno));
+    printf("ft_ssl: %s: %s: %s\n", hash_fn_to_str(node->hash_fn),node->args, strerror(errno));
     return 1;
   }
   node->input = input;
@@ -129,4 +129,10 @@ char* print_fn_to_str(void (*fn_print)(t_ssl*)) {
       return CmdPrintTables[i].command;
   }
   return NULL;
+}
+
+void print_to_upper(const char *str) {
+  for (uint32_t i = 0; str[i]; ++i) {
+    printf("%c", toupper(str[i]));
+  }
 }
