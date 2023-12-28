@@ -43,3 +43,9 @@ exe_test "echo \"GL HF let's go\" | ./ft_ssl md5 -p -s \"foo\" file" $'(\"GL HF 
 exe_test "echo \"one more thing\" | ./ft_ssl md5 -r -p -s \"foo\" file -s \"bar\"" $'(\"one more thing\")= a0bd1876c6f011dd50fae52827f445f5\nacbd18db4cc2f85cedef654fccc4a4d8 \"foo\"\n53d53ea94217b259c11a5a2d104ec58a file\nft_ssl: md5: -s: No such file or directory\nft_ssl: md5: bar: No such file or directory' 11
 # Test 12
 exe_test "echo \"just to be extra clear\" | ./ft_ssl md5 -r -q -p -s \"foo\" file" $'just to be extra clear\n3ba35f1ea0d170cb3b9a752e3360286c\nacbd18db4cc2f85cedef654fccc4a4d8\n53d53ea94217b259c11a5a2d104ec58a' 12
+# START SHA256 TEST
+echo "https://www.42.fr/" > website
+# Test 13
+exe_test "./ft_ssl sha256 -q website" "1ceb55d2845d9dd98557b50488db12bbf51aaca5aa9c1199eb795607a2457daf" 13
+# Test 14
+exe_test "./ft_ssl sha256 -s \"42 is nice\"" "SHA256 (\"42 is nice\") = b7e44c7a40c5f80139f0a50f3650fb2bd8d00b0d24667c4c2ca32c88e13b758f" 14
