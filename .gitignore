@@ -54,3 +54,4 @@ dkms.conf
 #jetbrain stuff
 .idea
 cmake-build-debug
+bigfile
