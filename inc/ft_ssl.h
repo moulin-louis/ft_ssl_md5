@@ -54,17 +54,23 @@ typedef struct {
   t_flags flag;
 } t_flag_str;
 
+typedef struct {
+  uint8_t* data;
+  size_t len;
+  size_t capacity;
+} t_set;
+
 t_ssl* parsing_args(char** av);
 
 void execute_ssl(t_ssl* ssl);
 
-void hash_md5(t_ssl* ssl);
+//HASH FUNCTION
 
-void print_md5(t_ssl* ssl);
+void hash_md5(t_ssl* ssl);
 
 void hash_sha256(t_ssl* ssl);
 
-void print_sha256(t_ssl* ssl);
+//LST FUNCTION
 
 size_t lst_len(const t_ssl* lst);
 
@@ -72,9 +78,13 @@ int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args, void*
 
 t_ssl* lst_get_last(t_ssl* lst);
 
-uint8_t* read_all_file(int fd, uint8_t** data, uint64_t* len);
+//FILE FUNCTION
 
 int32_t process_file(t_ssl* node);
+
+uint8_t* read_all_file(int fd, uint8_t** data, uint64_t* len);
+
+//CONVERT FUNCTION
 
 t_flags str_to_flags(const char* str);
 
@@ -87,6 +97,12 @@ char* hash_fn_to_str(void (*fn_hash)(t_ssl*));
 void (* str_to_print_fn(const char* str))(t_ssl*);
 
 char* print_fn_to_str(void (*fn_print)(t_ssl*));
+
+//PRINT FUNCTION
+
+void print_sha256(t_ssl* ssl);
+
+void print_md5(t_ssl* ssl);
 
 void print_to_upper(const char* str);
 
@@ -101,8 +117,6 @@ void print_file_args(t_ssl* ssl);
 void print_stdin_args(t_ssl* ssl);
 
 void print_string_args(t_ssl* ssl);
-
-void hexdump(void *data, size_t len, int32_t row);
 
 extern t_cmd_fn CmdHashTables[NBR_COMMANDS];
 extern t_cmd_fn CmdPrintTables[NBR_COMMANDS];

@@ -2,13 +2,7 @@
 // Created by loumouli on 12/19/23.
 //
 
-#include "../inc/ft_ssl.h"
-
-typedef struct {
-  uint8_t* data;
-  size_t len;
-  size_t capacity;
-} t_set;
+#include "ft_ssl.h"
 
 size_t lst_len(const t_ssl* lst) {
   size_t len = 0;
