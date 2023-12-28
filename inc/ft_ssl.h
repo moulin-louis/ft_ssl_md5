@@ -72,7 +72,7 @@ int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args, void*
 
 t_ssl* lst_get_last(t_ssl* lst);
 
-uint8_t* read_all_file(int fd);
+uint8_t* read_all_file(int fd, uint8_t** data, uint64_t* len);
 
 int32_t process_file(t_ssl* node);
 

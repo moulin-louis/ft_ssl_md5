@@ -4,6 +4,12 @@
 
 #include "../inc/ft_ssl.h"
 
+typedef struct {
+  uint8_t* data;
+  size_t len;
+  size_t capacity;
+} t_set;
+
 size_t lst_len(const t_ssl* lst) {
   size_t len = 0;
   for (const t_ssl* temp = lst; temp; temp = temp->next)
@@ -23,8 +29,8 @@ int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args, void*
   t_ssl* new = calloc(1, sizeof(t_ssl));
   if (new == NULL)
     return 1;
-  new->args = (uint8_t*)args;
-  new->input = (uint8_t*)input;
+  new->args = (uint8_t *)args;
+  new->input = (uint8_t *)input;
   if (input)
     new->len_input = strlen(input);
   new->flags = flags;
@@ -40,44 +46,62 @@ int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args, void*
 }
 
 int32_t process_file(t_ssl* node) {
-  const int fd = open((char*)node->args, O_RDONLY);
+  const int fd = open((char *)node->args, O_RDONLY);
   if (fd == -1) {
     printf("ft_ssl: %s: %s: %s\n", hash_fn_to_str(node->hash_fn), node->args, strerror(errno));
     return 1;
   }
-  uint8_t* input = read_all_file(fd);
+  uint8_t* input = NULL;
+  uint64_t len;
+  read_all_file(fd, &input, &len);
   if (input == NULL) {
+    close(fd);
     printf("ft_ssl: %s: %s: %s\n", hash_fn_to_str(node->hash_fn), node->args, strerror(errno));
     return 1;
   }
   node->input = input;
-  node->len_input = strlen((char*)input);
+  node->len_input = len;
   return 0;
 }
 
-uint8_t* read_all_file(const int fd) {
-  char* result = NULL;
-  uint64_t size = 0;
-  while (1) {
-    char buf[2096];
-    const ssize_t ret = read(fd, buf, 2095);
-    if (ret == -1) {
-      printf("ERROR READING FILE\n");
-      return NULL;
+uint32_t append_data_set(t_set* set, const void* data, const size_t len) {
+  if (set->capacity < set->len + len) {
+    const size_t new_capacity = (set->capacity + len) * 2;
+    const void* new_data = realloc(set->data, new_capacity);
+    if (new_data == NULL) {
+      return 1;
     }
-    if (ret == 0)
-      break;
-    buf[ret] = '\0';
-    char* tmp = realloc(result, (result ? strlen(result) : 0) + strlen(buf) + 1);
-    if (tmp == NULL) {
-      printf("ERROR ALLOCATING MEMORY\n");
-      return NULL;
-    }
-    result = tmp;
-    memcpy(result + size, buf, strlen(buf) + 1);
-    size += strlen(buf);
+    set->capacity = new_capacity;
+    set->data = (uint8_t *)new_data;
   }
-  return (uint8_t*)result;
+  memcpy(set->data + set->len, data, len);
+  set->len += len;
+  return 0;
+}
+
+uint8_t* read_all_file(const int file, uint8_t** data, uint64_t* len) {
+  t_set set = {};
+  set.data = malloc(1024);
+  if (set.data == NULL)
+    return NULL;
+  set.capacity = 1024;
+  while (1) {
+    char buff[4096];
+    const ssize_t retval = read(file, buff, sizeof(buff));
+    if (retval == -1) {
+      free(set.data);
+      return NULL;
+    }
+    if (retval == 0)
+      break;
+    if (append_data_set(&set, buff, retval)) {
+      free(set.data);
+      return NULL;
+    }
+  }
+  *data = set.data;
+  *len = set.len;
+  return *data;
 }
 
 t_flags str_to_flags(const char* str) {

@@ -147,9 +147,9 @@ static void ft_sha256_final(SHA256_Context* ctx) {
   ft_sha256_step(ctx);
 
   for (i = 0; i < 4; ++i) {
-    ctx->hash[i]      = (ctx->state[0] >> (24 - i * 8)) & 0x000000FF;
-    ctx->hash[i + 4]  = (ctx->state[1] >> (24 - i * 8)) & 0x000000FF;
-    ctx->hash[i + 8]  = (ctx->state[2] >> (24 - i * 8)) & 0x000000FF;
+    ctx->hash[i] = (ctx->state[0] >> (24 - i * 8)) & 0x000000FF;
+    ctx->hash[i + 4] = (ctx->state[1] >> (24 - i * 8)) & 0x000000FF;
+    ctx->hash[i + 8] = (ctx->state[2] >> (24 - i * 8)) & 0x000000FF;
     ctx->hash[i + 12] = (ctx->state[3] >> (24 - i * 8)) & 0x000000FF;
     ctx->hash[i + 16] = (ctx->state[4] >> (24 - i * 8)) & 0x000000FF;
     ctx->hash[i + 20] = (ctx->state[5] >> (24 - i * 8)) & 0x000000FF;
