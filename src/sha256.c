@@ -3,6 +3,8 @@
 //
 
 #include "ft_ssl.h"
+#include <arpa/inet.h>
+#include <smmintrin.h>
 
 //SIZE OF THE RESULT HASH
 #define SHA256_HASH_SIZE 32
@@ -18,10 +20,10 @@
 #define H7 0x5be0cd19
 
 //ROTATE RIGHT 32 BITS NUMBER
-#define ROTRIGHT(a,b) ((a >> b) | (a << (32-b)))
+#define ROTRIGHT(a,b) ((a >> b) ^ (a << (32-(b))))
 
 //OPERATION TO CALCULATE CH
-#define CH(x,y,z) ((x & y) ^ (~(x) & z))
+#define CH(x,y,z) ((x & y) ^ (z & ~x))
 //OPERATION TO CALCULTATE MAJ
 #define MAJ(x,y,z) ((x & y) ^ (x & z) ^ (y & z))
 #define EP0(x) (ROTRIGHT(x,2) ^ ROTRIGHT(x,13) ^ ROTRIGHT(x,22))
@@ -44,21 +46,28 @@ static const uint32_t k[64] = {
 };
 
 typedef struct {
-  uint8_t data[64]; //USE TO PROCESS ACTUAL DATA IN CHUNK OF 64 BYTES (512 BITS)
+  uint8_t data[64] __attribute__((aligned(16))); //USE TO PROCESS ACTUAL DATA IN CHUNK OF 64 BYTES (512 BITS)
   uint32_t datalen; //LEN IN BYTE OF THE CURRENT DATA
   uint64_t bitlen; // TOTAL LEN OF DATA IN BITS
   uint32_t state[8]; //HOLDING STATE OF H0, .., H7 DURING STEP
   uint8_t hash[SHA256_HASH_SIZE]; //RESULT HASH IN LITTLE ENDIAN
 } SHA256_Context;
 
-static void ft_sha256_step(SHA256_Context* ctx) {
-  uint32_t m[64];
+static void ft_sha256_step(SHA256_Context* restrict ctx) {
+  uint32_t m[64] __attribute__((aligned(16))) = {};
 
   uint32_t i = 0;
-  for (uint32_t j = 0; i < 16; ++i, j += 4)
-    m[i] = ctx->data[j] << 24 | ctx->data[j + 1] << 16 | ctx->data[j + 2] << 8 | ctx->data[j + 3];
+  uint32_t j = 0;
+  const __m128i shuffle_mask = _mm_set_epi8(12, 13, 14, 15, 8, 9, 10, 11, 4, 5, 6, 7, 0, 1, 2, 3);
+  for (; i < 16; i += 4, j += 16) {
+    __m128i data = _mm_load_si128((__m128i *)(ctx->data + j));
+    data = _mm_shuffle_epi8(data, shuffle_mask);
+    _mm_store_si128((__m128i *)(m + i), data);
+  }
+
   for (; i < 64; ++i)
     m[i] = S1(m[i - 2]) + m[i - 7] + S0(m[i - 15]) + m[i - 16];
+
   uint32_t a = ctx->state[0];
   uint32_t b = ctx->state[1];
   uint32_t c = ctx->state[2];
@@ -90,7 +99,7 @@ static void ft_sha256_step(SHA256_Context* ctx) {
   ctx->state[7] += h;
 }
 
-static void ft_sha256_init(SHA256_Context* ctx) {
+static void ft_sha256_init(SHA256_Context* restrict ctx) {
   memset(ctx->data, 0, 64);
   ctx->datalen = 0;
   ctx->bitlen = 0;
@@ -104,7 +113,7 @@ static void ft_sha256_init(SHA256_Context* ctx) {
   ctx->state[7] = H7;
 }
 
-static void ft_sha256_update(SHA256_Context* ctx, const uint8_t* data, const uint64_t datalen) {
+static void ft_sha256_update(SHA256_Context* restrict ctx, const uint8_t* restrict data, const uint64_t datalen) {
   for (uint32_t idx = 0; idx < datalen; ++idx) {
     ctx->data[ctx->datalen] = data[idx];
     ctx->datalen += 1;
@@ -116,9 +125,9 @@ static void ft_sha256_update(SHA256_Context* ctx, const uint8_t* data, const uin
   }
 }
 
-static void ft_sha256_final(SHA256_Context* ctx) {
-  uint32_t i = ctx->datalen;
 
+static void ft_sha256_final(SHA256_Context* restrict ctx) {
+  uint32_t i = ctx->datalen;
   if (ctx->datalen < 56) {
     ctx->data[i++] = 128;
     while (i < 56) {
@@ -147,14 +156,14 @@ static void ft_sha256_final(SHA256_Context* ctx) {
   ft_sha256_step(ctx);
 
   for (i = 0; i < 4; ++i) {
-    ctx->hash[i] = (ctx->state[0] >> (24 - i * 8)) & 0x000000FF;
-    ctx->hash[i + 4] = (ctx->state[1] >> (24 - i * 8)) & 0x000000FF;
-    ctx->hash[i + 8] = (ctx->state[2] >> (24 - i * 8)) & 0x000000FF;
-    ctx->hash[i + 12] = (ctx->state[3] >> (24 - i * 8)) & 0x000000FF;
-    ctx->hash[i + 16] = (ctx->state[4] >> (24 - i * 8)) & 0x000000FF;
-    ctx->hash[i + 20] = (ctx->state[5] >> (24 - i * 8)) & 0x000000FF;
-    ctx->hash[i + 24] = (ctx->state[6] >> (24 - i * 8)) & 0x000000FF;
-    ctx->hash[i + 28] = (ctx->state[7] >> (24 - i * 8)) & 0x000000FF;
+    ctx->hash[i] = htonl(ctx->state[0]) >> i * 8;
+    ctx->hash[i + 4] = htonl(ctx->state[1]) >> i * 8;
+    ctx->hash[i + 8] = htonl(ctx->state[2]) >> i * 8;
+    ctx->hash[i + 12] = htonl(ctx->state[3]) >> i * 8;
+    ctx->hash[i + 16] = htonl(ctx->state[4]) >> i * 8;
+    ctx->hash[i + 20] = htonl(ctx->state[5]) >> i * 8;
+    ctx->hash[i + 24] = htonl(ctx->state[6]) >> i * 8;
+    ctx->hash[i + 28] = htonl(ctx->state[7]) >> i * 8;
   }
 }
 

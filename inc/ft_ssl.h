@@ -102,6 +102,8 @@ void print_stdin_args(t_ssl* ssl);
 
 void print_string_args(t_ssl* ssl);
 
+void hexdump(void *data, size_t len, int32_t row);
+
 extern t_cmd_fn CmdHashTables[NBR_COMMANDS];
 extern t_cmd_fn CmdPrintTables[NBR_COMMANDS];
 extern t_flag_str FlagsTables[NBR_FLAGS];

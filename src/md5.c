@@ -80,23 +80,21 @@ static void ft_md5_step(MD5_Context* ctx, const uint32_t* input) {
   uint32_t F;
   uint32_t g;
   for (uint32_t i = 0; i < 64; ++i) {
-    switch (i / 16) {
-      case 0: // if 0 <= i <= 15
-        F = F(BB, CC, DD);
-        g = i;
-        break;
-      case 1: // if 16 <= i <= 31
-        F = G(BB, CC, DD);
-        g = ((i * 5) + 1) % 16;
-        break;
-      case 2: // if 32 <= i <= 47
-        F = H(BB, CC, DD);
-        g = ((i * 3) + 5) % 16;
-        break;
-      default: // if 48 <= i <= 63
-        F = I(BB, CC, DD);
-        g = (i * 7) % 16;
-        break;
+    if (i <= 15) {
+      F = F(BB, CC, DD);
+      g = i;
+    }
+    else if (i <= 31) {
+      F = G(BB, CC, DD);
+      g = ((i * 5) + 1) % 16;
+    }
+    else if (i <= 47) {
+      F = H(BB, CC, DD);
+      g = ((i * 3) + 5) % 16;
+    }
+    else {
+      F = I(BB, CC, DD);
+      g = (i * 7) % 16;
     }
     F = F + AA + K[i] + input[g];
     AA = DD;
@@ -121,7 +119,8 @@ static void ft_md5_update(MD5_Context* ctx, const uint8_t* data, const uint64_t 
       continue;
     //convert to little endian
     for (uint32_t j = 0; j < 16; ++j)
-      input[j] = (uint32_t)ctx->input[j * 4 + 3] << 24 | (uint32_t)ctx->input[j * 4 + 2] << 16 | (uint32_t)ctx->input[j * 4 + 1] << 8 | (uint32_t)ctx->input[j * 4];
+      input[j] = (uint32_t)ctx->input[j * 4 + 3] << 24 | (uint32_t)ctx->input[j * 4 + 2] << 16 | (uint32_t)ctx->input[
+                   j * 4 + 1] << 8 | (uint32_t)ctx->input[j * 4];
     ft_md5_step(ctx, input);
     offset = 0;
   }
@@ -135,7 +134,8 @@ static void ft_md5_final(MD5_Context* ctx) {
   ft_md5_update(ctx, PADDING, pad_len);
   ctx->size -= pad_len;
   for (uint32_t j = 0; j < 14; ++j)
-    input[j] = (uint32_t)ctx->input[j * 4 + 3] << 24 | (uint32_t)ctx->input[j * 4 + 2] << 16 | (uint32_t)ctx->input[j * 4 + 1] << 8 | (uint32_t)ctx->input[j * 4];
+    input[j] = (uint32_t)ctx->input[j * 4 + 3] << 24 | (uint32_t)ctx->input[j * 4 + 2] << 16 | (uint32_t)ctx->input[
+                 j * 4 + 1] << 8 | (uint32_t)ctx->input[j * 4];
   input[14] = (uint32_t)(ctx->size * 8);
   input[15] = (uint32_t)(ctx->size * 8 >> 32);
   ft_md5_step(ctx, input);
