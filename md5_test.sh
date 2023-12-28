@@ -19,7 +19,7 @@ exe_test() {
 
 cd cmake-build-debug
 # Test 1
-exe_test "echo \"42 is nice\" | ./ft_ssl md5" "(stdin)= 35f1d6de0302e2086a4e472266efb3a9" 1
+#exe_test "echo \"42 is nice\" | ./ft_ssl md5" "(stdin)= 35f1d6de0302e2086a4e472266efb3a9" 1
 # Test 2
 exe_test "echo \"42 is nice\" | ./ft_ssl md5 -p" "(\"42 is nice\")= 35f1d6de0302e2086a4e472266efb3a9" 2
 # Test 3

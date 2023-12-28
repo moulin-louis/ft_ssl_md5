@@ -33,7 +33,8 @@ typedef enum {
 
 typedef struct s_ssl {
   void (*hash_fn)(struct s_ssl*); // POINTER TO FUNCTION USED TO HASH THE INPUT
-  void (*print_hash)(struct s_ssl*); // POINTER TO FUNCTION USED TO PRINT THE RESULT
+  void (*print_hash)(struct s_ssl*); // POINTER TO FUNCTION USED TO PRINT RESULT
+  void (*print_args)(struct s_ssl*); //POINTER TO FUNCTION USED TO PRINT ARGUMENT
   uint32_t flags; // FLAGS TO APPLY TO THE COMMAND/OUTPUT
   uint8_t* input; // STRING TO HASH
   uint64_t len_input; //LEN OF INPUT
@@ -67,7 +68,7 @@ void print_sha256(t_ssl* ssl);
 
 size_t lst_len(const t_ssl* lst);
 
-int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args);
+int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args, void* ptrint_args_fn);
 
 t_ssl* lst_get_last(t_ssl* lst);
 
@@ -79,21 +80,27 @@ t_flags str_to_flags(const char* str);
 
 char* flag_to_str(t_flags flag);
 
-void (*str_to_hash_fn(const char* str))(t_ssl*);
+void (* str_to_hash_fn(const char* str))(t_ssl*);
 
 char* hash_fn_to_str(void (*fn_hash)(t_ssl*));
 
-void (*str_to_print_fn(const char* str))(t_ssl*);
+void (* str_to_print_fn(const char* str))(t_ssl*);
 
 char* print_fn_to_str(void (*fn_print)(t_ssl*));
 
-void print_to_upper(const char *str);
+void print_to_upper(const char* str);
 
 void print_string_node(t_ssl* ssl);
 
 void print_file_node(t_ssl* ssl);
 
 void print_stdin_node(t_ssl* ssl);
+
+void print_file_args(t_ssl* ssl);
+
+void print_stdin_args(t_ssl* ssl);
+
+void print_string_args(t_ssl* ssl);
 
 extern t_cmd_fn CmdHashTables[NBR_COMMANDS];
 extern t_cmd_fn CmdPrintTables[NBR_COMMANDS];

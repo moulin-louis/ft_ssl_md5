@@ -19,15 +19,16 @@ t_ssl* lst_get_last(t_ssl* lst) {
   return lst;
 }
 
-int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args) {
+int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args, void* ptrint_args_fn) {
   t_ssl* new = calloc(1, sizeof(t_ssl));
   if (new == NULL)
     return 1;
-  new->args = (uint8_t *)args;
-  new->input = (uint8_t *)input;
+  new->args = (uint8_t*)args;
+  new->input = (uint8_t*)input;
   if (input)
     new->len_input = strlen(input);
   new->flags = flags;
+  new->print_args = ptrint_args_fn;
   if (*lst == NULL) {
     *lst = new;
     return 0;
@@ -39,18 +40,18 @@ int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args) {
 }
 
 int32_t process_file(t_ssl* node) {
-  const int fd = open((char *)node->args, O_RDONLY);
+  const int fd = open((char*)node->args, O_RDONLY);
   if (fd == -1) {
-    printf("ft_ssl: %s: %s: %s\n", hash_fn_to_str(node->hash_fn),node->args, strerror(errno));
+    printf("ft_ssl: %s: %s: %s\n", hash_fn_to_str(node->hash_fn), node->args, strerror(errno));
     return 1;
   }
   uint8_t* input = read_all_file(fd);
   if (input == NULL) {
-    printf("ft_ssl: %s: %s: %s\n", hash_fn_to_str(node->hash_fn),node->args, strerror(errno));
+    printf("ft_ssl: %s: %s: %s\n", hash_fn_to_str(node->hash_fn), node->args, strerror(errno));
     return 1;
   }
   node->input = input;
-  node->len_input = strlen((char *)input);
+  node->len_input = strlen((char*)input);
   return 0;
 }
 
@@ -76,7 +77,7 @@ uint8_t* read_all_file(const int fd) {
     memcpy(result + size, buf, strlen(buf) + 1);
     size += strlen(buf);
   }
-  return (uint8_t *)result;
+  return (uint8_t*)result;
 }
 
 t_flags str_to_flags(const char* str) {
@@ -129,10 +130,4 @@ char* print_fn_to_str(void (*fn_print)(t_ssl*)) {
       return CmdPrintTables[i].command;
   }
   return NULL;
-}
-
-void print_to_upper(const char *str) {
-  for (uint32_t i = 0; str[i]; ++i) {
-    printf("%c", toupper(str[i]));
-  }
 }

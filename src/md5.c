@@ -46,7 +46,7 @@ typedef struct {
   uint8_t digest[16]; // result hash
 } MD5_Context;
 
-uint32_t rotateLeft(const uint32_t x, const uint32_t n) {
+static uint32_t rotl32(const uint32_t x, const uint32_t n) {
   return x << n | x >> (32 - n);
 }
 
@@ -55,7 +55,7 @@ void print_md5(t_ssl* ssl) {
     printf("%02x", ssl->hash[i]);
 }
 
-void ft_md5_init(MD5_Context* ctx) {
+static void ft_md5_init(MD5_Context* ctx) {
   ctx->size = 0;
   ctx->buffer[0] = (uint32_t)A0;
   ctx->buffer[1] = (uint32_t)B0;
@@ -63,7 +63,7 @@ void ft_md5_init(MD5_Context* ctx) {
   ctx->buffer[3] = (uint32_t)D0;
 }
 
-void ft_md5_step(MD5_Context* ctx, const uint32_t* input) {
+static void ft_md5_step(MD5_Context* ctx, const uint32_t* input) {
   uint32_t AA = ctx->buffer[0];
   uint32_t BB = ctx->buffer[1];
   uint32_t CC = ctx->buffer[2];
@@ -94,7 +94,7 @@ void ft_md5_step(MD5_Context* ctx, const uint32_t* input) {
     AA = DD;
     DD = CC;
     CC = BB;
-    BB = BB + rotateLeft(F, s[i]);
+    BB = BB + rotl32(F, s[i]);
   }
   ctx->buffer[0] += AA;
   ctx->buffer[1] += BB;
@@ -102,7 +102,7 @@ void ft_md5_step(MD5_Context* ctx, const uint32_t* input) {
   ctx->buffer[3] += DD;
 }
 
-void ft_md5_update(MD5_Context* ctx, const uint8_t* data, const uint64_t len) {
+static void ft_md5_update(MD5_Context* ctx, const uint8_t* data, const uint64_t len) {
   uint32_t input[16];
   unsigned int offset = ctx->size % 64;
   ctx->size += len;
@@ -120,7 +120,7 @@ void ft_md5_update(MD5_Context* ctx, const uint8_t* data, const uint64_t len) {
   }
 }
 
-void ft_md5_final(MD5_Context* ctx) {
+static void ft_md5_final(MD5_Context* ctx) {
   uint32_t input[16];
   const uint32_t offset = ctx->size % 64;
   const uint32_t pad_len = offset < 56 ? 56 - offset : (56 + 64) - offset;

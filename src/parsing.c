@@ -11,7 +11,7 @@ static void parsing(t_ssl** ssl, char** av, uint32_t option) {
     char* input = (char*)read_all_file(0);
     if (input == NULL)
       return;
-    lst_add_back(ssl, option | STDIN, input, NULL);
+    lst_add_back(ssl, option | STDIN, input, NULL, print_stdin_args);
     return;
   }
   const t_flags flag = str_to_flags(*av);
@@ -28,18 +28,18 @@ static void parsing(t_ssl** ssl, char** av, uint32_t option) {
     char* input = (char*)read_all_file(0);
     if (input == NULL)
       break;
-    lst_add_back(ssl, option | STDIN, input, input);
+    lst_add_back(ssl, option | STDIN, input, input, print_stdin_args);
     parsing(ssl, ++av, option);
     break;
   }
   case STRING:
-    lst_add_back(ssl, option | STRING, *(av + 1), *(av + 1));
+    lst_add_back(ssl, option | STRING, *(av + 1), *(av + 1), print_string_args);
     av += 2;
     parsing(ssl, av, option);
     break;
   case INVALID:
     for (uint32_t idx = 0; av[idx]; idx++)
-      lst_add_back(ssl, option, NULL, av[idx]);
+      lst_add_back(ssl, option, NULL, av[idx], print_file_args);
   }
 }
 
