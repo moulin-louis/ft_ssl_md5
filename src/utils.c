@@ -20,13 +20,13 @@ t_ssl* lst_get_last(t_ssl* lst) {
 }
 
 int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args, void* ptrint_args_fn) {
-  t_ssl* new = calloc(1, sizeof(t_ssl));
+  t_ssl* new = ft_calloc(1, sizeof(t_ssl));
   if (new == NULL)
     return 1;
-  new->args = (uint8_t *)args;
-  new->input = (uint8_t *)input;
+  new->args = (uint8_t*)args;
+  new->input = (uint8_t*)input;
   if (input)
-    new->len_input = strlen(input);
+    new->len_input = ft_strlen(input);
   new->flags = flags;
   new->print_args = ptrint_args_fn;
   if (*lst == NULL) {
@@ -40,7 +40,7 @@ int32_t lst_add_back(t_ssl** lst, uint32_t flags, char* input, char* args, void*
 }
 
 int32_t process_file(t_ssl* node) {
-  const int fd = open((char *)node->args, O_RDONLY);
+  const int fd = open((char*)node->args, O_RDONLY);
   if (fd == -1) {
     printf("ft_ssl: %s: %s: %s\n", hash_fn_to_str(node->hash_fn), node->args, strerror(errno));
     return 1;
@@ -66,9 +66,9 @@ uint32_t append_data_set(t_set* set, const void* data, const size_t len) {
       return 1;
     }
     set->capacity = new_capacity;
-    set->data = (uint8_t *)new_data;
+    set->data = (uint8_t*)new_data;
   }
-  memcpy(set->data + set->len, data, len);
+  ft_memcpy(set->data + set->len, data, len);
   set->len += len;
   return 0;
 }
@@ -100,7 +100,7 @@ uint8_t* read_all_file(const int file, uint8_t** data, uint64_t* len) {
 
 t_flags str_to_flags(const char* str) {
   for (uint32_t idx = 0; idx < NBR_FLAGS; idx++) {
-    if (strcmp(FlagsTables[idx].flag_str, str) == 0)
+    if (ft_strcmp(FlagsTables[idx].flag_str, str) == 0)
       return FlagsTables[idx].flag;
   }
   return INVALID;
@@ -117,7 +117,7 @@ char* flag_to_str(const t_flags flag) {
 //FUNCTION THAT RETURN A PTR FUNCTION OF THIS TYPE -> void (const t_ssl*) FKIN WEIRD SYNTAX
 void (* str_to_hash_fn(const char* str))(t_ssl*) {
   for (uint32_t i = 0; i < NBR_COMMANDS; i++) {
-    if (strcmp(CmdHashTables[i].command, str) == 0) {
+    if (ft_strcmp(CmdHashTables[i].command, str) == 0) {
       return CmdHashTables[i].fn;
     }
   }
@@ -135,7 +135,7 @@ char* hash_fn_to_str(void (*fn_hash)(t_ssl*)) {
 //FUNCTION THAT RETURN A PTR FUNCTION OF THIS TYPE -> void (const t_ssl*) FKIN WEIRD SYNTAX
 void (* str_to_print_fn(const char* str))(t_ssl*) {
   for (uint32_t i = 0; i < NBR_COMMANDS; i++) {
-    if (strcmp(CmdPrintTables[i].command, str) == 0) {
+    if (ft_strcmp(CmdPrintTables[i].command, str) == 0) {
       return CmdPrintTables[i].fn;
     }
   }
@@ -150,10 +150,10 @@ char* print_fn_to_str(void (*fn_print)(t_ssl*)) {
   return NULL;
 }
 
-void hexdump(void *data, size_t len, int32_t row) {
+void hexdump(void* data, size_t len, int32_t row) {
   if (row == 0) {
     for (size_t i = 0; i < len; i++)
-      dprintf(1, "%02x ", ((uint8_t *) data)[i]);
+      dprintf(1, "%02x ", ((uint8_t*)data)[i]);
     dprintf(1, "\n");
     return;
   }
@@ -161,7 +161,7 @@ void hexdump(void *data, size_t len, int32_t row) {
     for (size_t j = i; j < i + row; j++) {
       if (j == len)
         break;
-      dprintf(1, "%02x ", ((uint8_t *) data)[j]);
+      dprintf(1, "%02x ", ((uint8_t*)data)[j]);
     }
     dprintf(1, "\n");
   }

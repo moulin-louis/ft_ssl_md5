@@ -60,9 +60,9 @@ static void ft_sha256_step(SHA256_Context* restrict ctx) {
   uint32_t j = 0;
   const __m128i shuffle_mask = _mm_set_epi8(12, 13, 14, 15, 8, 9, 10, 11, 4, 5, 6, 7, 0, 1, 2, 3);
   for (; i < 16; i += 4, j += 16) {
-    __m128i data = _mm_load_si128((__m128i *)(ctx->data + j));
+    __m128i data = _mm_load_si128((__m128i*)(ctx->data + j));
     data = _mm_shuffle_epi8(data, shuffle_mask);
-    _mm_store_si128((__m128i *)(m + i), data);
+    _mm_store_si128((__m128i*)(m + i), data);
   }
 
   for (; i < 64; ++i)

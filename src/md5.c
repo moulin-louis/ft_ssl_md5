@@ -120,7 +120,7 @@ static void ft_md5_update(MD5_Context* ctx, const uint8_t* data, const uint64_t 
     //convert to little endian
     for (uint32_t j = 0; j < 16; ++j)
       input[j] = (uint32_t)ctx->input[j * 4 + 3] << 24 | (uint32_t)ctx->input[j * 4 + 2] << 16 | (uint32_t)ctx->input[
-                   j * 4 + 1] << 8 | (uint32_t)ctx->input[j * 4];
+        j * 4 + 1] << 8 | (uint32_t)ctx->input[j * 4];
     ft_md5_step(ctx, input);
     offset = 0;
   }
@@ -135,7 +135,7 @@ static void ft_md5_final(MD5_Context* ctx) {
   ctx->size -= pad_len;
   for (uint32_t j = 0; j < 14; ++j)
     input[j] = (uint32_t)ctx->input[j * 4 + 3] << 24 | (uint32_t)ctx->input[j * 4 + 2] << 16 | (uint32_t)ctx->input[
-                 j * 4 + 1] << 8 | (uint32_t)ctx->input[j * 4];
+      j * 4 + 1] << 8 | (uint32_t)ctx->input[j * 4];
   input[14] = (uint32_t)(ctx->size * 8);
   input[15] = (uint32_t)(ctx->size * 8 >> 32);
   ft_md5_step(ctx, input);
@@ -150,9 +150,9 @@ static void ft_md5_final(MD5_Context* ctx) {
 void hash_md5(t_ssl* ssl) {
   MD5_Context ctx;
 
-  memset(&ctx, 0, sizeof(MD5_Context));
+  ft_memset(&ctx, 0, sizeof(MD5_Context));
   ft_md5_init(&ctx);
   ft_md5_update(&ctx, ssl->input, ssl->len_input);
   ft_md5_final(&ctx);
-  memcpy(ssl->hash, ctx.buffer, MD5_RESULT_SIZE);
+  ft_memcpy(ssl->hash, ctx.buffer, MD5_RESULT_SIZE);
 }

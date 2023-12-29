@@ -11,7 +11,7 @@ void print_to_upper(const char* str) {
 
 void print_string_node(t_ssl* ssl) {
   print_to_upper(hash_fn_to_str(ssl->hash_fn));
-  char* nl = strchr((char *)ssl->args, '\n');
+  char* nl = ft_strchr((char*)ssl->args, '\n');
   nl ? *nl = 0 : (void)nl;
   printf(" (");
   ssl->print_args(ssl);
@@ -47,7 +47,7 @@ void print_stdin_args(t_ssl* ssl) {
     printf("stdin");
     return;
   }
-  char* nl = strchr((char *)ssl->args, '\n');
+  char* nl = ft_strchr((char*)ssl->args, '\n');
   nl ? *nl = 0 : (void)nl;
   if (ssl->flags & QUIET)
     printf("%s", ssl->args);

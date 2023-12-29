@@ -4,7 +4,9 @@ set(CMAKE_C_COMPILER /usr/bin/gcc)
 project(ft_ssl C)
 
 add_compile_options(-Wall -Wextra -Werror -march=native -mavx2 -msse4.2 -O3 -pg)
-include_directories(./inc)
+include_directories(./inc ./libft/inc)
+add_subdirectory(libft)
+link_libraries(ft)
 link_libraries(crypto ssl)
 add_executable(ft_ssl ./src/main.c
         inc/ft_ssl.h
