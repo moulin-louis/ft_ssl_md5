@@ -62,6 +62,8 @@ typedef struct {
   size_t capacity;
 } t_set;
 
+void display_help(void);
+
 t_ssl* parsing_args(char** av);
 
 void execute_ssl(t_ssl* ssl);

@@ -25,6 +25,17 @@ static void display_usage(void) {
   printf("usage: ft_ssl command [flags] [file/string]\n");
 }
 
+void display_help(void) {
+  printf("\nCommands:\n");
+  for (uint32_t idx = 0; idx < NBR_COMMANDS; idx++) {
+    printf("%s\n", CmdHashTables[idx].command);
+  }
+  printf("\nFlags:\n");
+  for (uint32_t idx = 0; idx < NBR_FLAGS; idx++) {
+    printf("%s ", FlagsTables[idx].flag_str);
+  }
+}
+
 static void cleanup_ssl(t_ssl* ssl) {
   while (ssl) {
     t_ssl* tmp = ssl->next;
