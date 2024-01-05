@@ -6,8 +6,6 @@
 #ifndef FT_SSL_H
 #define FT_SSL_H
 
-#include <libft.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +14,8 @@
 #include <stdint.h>
 #include <errno.h>
 #include <ctype.h>
+
+#include <libft.h>
 
 #define NBR_FLAGS 4
 #define NBR_COMMANDS 2
@@ -61,6 +61,10 @@ typedef struct {
   size_t len;
   size_t capacity;
 } t_set;
+
+extern t_cmd_fn CmdHashTables[NBR_COMMANDS];
+extern t_cmd_fn CmdPrintTables[NBR_COMMANDS];
+extern t_flag_str FlagsTables[NBR_FLAGS];
 
 void display_help(void);
 
@@ -121,9 +125,5 @@ void print_file_args(t_ssl* ssl);
 void print_stdin_args(t_ssl* ssl);
 
 void print_string_args(t_ssl* ssl);
-
-extern t_cmd_fn CmdHashTables[NBR_COMMANDS];
-extern t_cmd_fn CmdPrintTables[NBR_COMMANDS];
-extern t_flag_str FlagsTables[NBR_FLAGS];
 
 #endif //FT_SSL_H

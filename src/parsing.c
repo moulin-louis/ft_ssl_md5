@@ -54,7 +54,7 @@ t_ssl* parsing_args(char** av) {
 
   void (*hash_fn)(t_ssl*) = str_to_hash_fn(av[1]);
   void (*print_fn)(t_ssl*) = str_to_print_fn(av[1]);
-  if (hash_fn == NULL || print_fn == NULL) {
+  if (hash_fn == NULL) {
     printf("Wrongs commands\n");
     display_help();
     return NULL;
