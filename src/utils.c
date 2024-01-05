@@ -62,9 +62,8 @@ uint32_t append_data_set(t_set* set, const void* data, const size_t len) {
   if (set->capacity < set->len + len) {
     const size_t new_capacity = (set->capacity + len) * 2;
     const void* new_data = realloc(set->data, new_capacity);
-    if (new_data == NULL) {
+    if (new_data == NULL)
       return 1;
-    }
     set->capacity = new_capacity;
     set->data = (uint8_t*)new_data;
   }
@@ -117,9 +116,8 @@ char* flag_to_str(const t_flags flag) {
 //FUNCTION THAT RETURN A PTR FUNCTION OF THIS TYPE -> void (const t_ssl*) FKIN WEIRD SYNTAX
 void (* str_to_hash_fn(const char* str))(t_ssl*) {
   for (uint32_t i = 0; i < NBR_COMMANDS; i++) {
-    if (ft_strcmp(CmdHashTables[i].command, str) == 0) {
+    if (ft_strcmp(CmdHashTables[i].command, str) == 0)
       return CmdHashTables[i].fn;
-    }
   }
   return NULL;
 }
@@ -135,9 +133,8 @@ char* hash_fn_to_str(void (*fn_hash)(t_ssl*)) {
 //FUNCTION THAT RETURN A PTR FUNCTION OF THIS TYPE -> void (const t_ssl*) FKIN WEIRD SYNTAX
 void (* str_to_print_fn(const char* str))(t_ssl*) {
   for (uint32_t i = 0; i < NBR_COMMANDS; i++) {
-    if (ft_strcmp(CmdPrintTables[i].command, str) == 0) {
+    if (ft_strcmp(CmdPrintTables[i].command, str) == 0)
       return CmdPrintTables[i].fn;
-    }
   }
   return NULL;
 }

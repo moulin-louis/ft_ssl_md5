@@ -17,24 +17,21 @@ static void print_result(t_ssl* ssl) {
     printf(" ");
     ssl->print_args(ssl);
   }
-  else if (ssl->flags & STDIN) {
+  else if (ssl->flags & STDIN)
     print_stdin_node(ssl);
-  }
-  else if (ssl->flags & STRING) {
+  else if (ssl->flags & STRING)
     print_string_node(ssl);
-  }
-  else {
+  else
     print_file_node(ssl);
-  }
   printf("\n");
 }
 
 void execute_ssl(t_ssl* ssl) {
   for (t_ssl* node = ssl; node; node = node->next) {
     if (!(node->flags & STDIN) && !(node->flags & STRING))
-      if (process_file(node))
+      if (process_file(node)) //if process_file return 1, we skip this node
         continue;
-    node->hash_fn(node);
-    print_result(node);
+    node->hash_fn(node); //hash the node, cant really fail
+    print_result(node); //print the result
   }
 }
