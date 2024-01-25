@@ -56,12 +56,6 @@ typedef struct {
   t_flags flag;
 } t_flag_str;
 
-typedef struct {
-  uint8_t* data;
-  size_t len;
-  size_t capacity;
-} t_set;
-
 extern t_cmd_fn CmdHashTables[NBR_COMMANDS];
 extern t_cmd_fn CmdPrintTables[NBR_COMMANDS];
 extern t_flag_str FlagsTables[NBR_FLAGS];
@@ -89,8 +83,6 @@ t_ssl* lst_get_last(t_ssl* lst);
 //FILE FUNCTION
 
 int32_t process_file(t_ssl* node);
-
-uint8_t* read_all_file(int fd, uint8_t** data, uint64_t* len);
 
 //CONVERT FUNCTION
 

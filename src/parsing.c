@@ -10,7 +10,7 @@ static void parsing(t_ssl** ssl, char** av, uint32_t option) {
       return;
     uint8_t* input = NULL;
     uint64_t len = 0;
-    read_all_file(0, &input, &len);
+    read_file("/dev/stdin", &input, &len);
     if (input == NULL)
       return;
     lst_add_back(ssl, option | STDIN, (char*)input, NULL, print_stdin_args);
@@ -30,7 +30,7 @@ static void parsing(t_ssl** ssl, char** av, uint32_t option) {
   case STDIN: {
     uint8_t* data;
     uint64_t len;
-    read_all_file(0, &data, &len);
+    read_file("/dev/stdin", &data, &len);
     if (data == NULL)
       break;
     lst_add_back(ssl, option | STDIN, (char*)data, (char*)data, print_stdin_args);
